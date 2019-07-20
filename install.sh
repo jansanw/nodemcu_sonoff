@@ -3,8 +3,8 @@
 
 echo `pwd`
 
-LUATOOL=./luatool.py
-ESPTOOL=esptool.py
+LUATOOL=/home/janansw/htdocs/project/esp8266/luatool/luatool/luatool.py
+ESPTOOL=/usr/local/lib/python2.7/dist-packages/esptool.py
 DEFPORT=/dev/ttyUSB0
 DEFMODE=reflash
 PORT=${1:-$DEFPORT}
@@ -16,12 +16,12 @@ FLASHTOOL=./fw/flash.sh
 files=(
     mqtt.lua
     config.lua
-    http.lua
-    page.tmpl
-    telnet.lua
     led.lua
     init.lua
 )
+#    http.lua
+#    page.tmpl
+#    telnet.lua
 
 function run_cmd() {
     local reply
@@ -39,11 +39,11 @@ if [[ $MODE != "noflash" ]]; then
     MODE=$DEFMODE
 fi
 
-echo "Board will be erased and all data will be lost!"	
+echo "Board will be erased and all data will be lost!"
 
 if [[ $MODE = "reflash" ]]; then
     read -p "Hold button on the board and reboot it. Then press ENTER to continue..."
-   
+
     #Flash chip
     echo "Programming..."
     $FLASHTOOL $PORT
@@ -53,7 +53,7 @@ if [[ $MODE = "reflash" ]]; then
 
     sleep 5
 else
-    echo "FW flash skipped.."    
+    echo "FW flash skipped.."
 fi
 
 #Detect Nodemcu firmware
