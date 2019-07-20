@@ -3,7 +3,7 @@
 FW=nodemcu-master-8-modules-2018-11-02-19-32-45-float.bin
 DEFPORT=/dev/ttyUSB0
 BAUD=250000
-ESPTOOL=esptool.py
+ESPTOOL=/usr/local/lib/python2.7/dist-packages/esptool.py
 
 PORT=${1:-$DEFPORT}
 

@@ -110,7 +110,7 @@ end
 -- actions
 local function state_pub(m, msg)
   if online then
-    m:publish(MQTT_MAINTOPIC .. '/cmd/power', msg, 0, 1)
+    m:publish(MQTT_MAINTOPIC .. '/state/power', msg, 0, 1)
     print("MQTT (online): " .. msg)
     LedBlink(100)
   else
@@ -121,9 +121,11 @@ end
 local function switch_power(m, pl)
 	if string.lower(pl) == "on" or pl == "1" then
     gpio.write(GPIO_SWITCH, gpio.HIGH)
+      state_pub(m, "on")
 		print("MQTT : plug ON for ", MQTT_CLIENTID)
 	elseif string.lower(pl) == "off" or pl == "0" then
 		gpio.write(GPIO_SWITCH, gpio.LOW)
+      state_pub(m, "off")
 		print("MQTT : plug OFF for ", MQTT_CLIENTID)
 	end
 end
@@ -138,6 +140,13 @@ local function toggle_power()
   end
 end
 
+local function switch_state_pub()
+  if gpio.read(GPIO_SWITCH) == gpio.HIGH then
+    state_pub(m, "on")
+  else
+    state_pub(m, "off")
+  end
+end
 
 -- Start / Switch GPIO INIT
 gpio.mode(GPIO_SWITCH, gpio.OUTPUT)
@@ -147,6 +156,7 @@ gpio.trig(GPIO_BUTTON, 'down', debounce(toggle_power))
 --Assign MQTT handlers
 m_dis[MQTT_MAINTOPIC .. '/cmd/power'] = switch_power
 m_dis[MQTT_MAINTOPIC .. '/cmd/status'] = service_pub
+m_dis[MQTT_MAINTOPIC .. '/cmd/state'] = switch_state_pub
 
 
 -- Connect to the broker
