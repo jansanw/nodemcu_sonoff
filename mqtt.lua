@@ -50,6 +50,11 @@ function handle_mqtt_connect(m)
     print('MQTT: subscribed to ' .. MQTT_MAINTOPIC) 
   end)
 
+  -- Subscribe to the topic where the iot discovery
+  m:subscribe('/iot/discovery', 0, function (m)
+    print('MQTT: subscribed to iot discovery')
+  end)
+
   --Publish service data periodicaly
   service_pub()
   tmr.alarm(service_tmr, service_period, tmr.ALARM_AUTO, service_pub)
@@ -148,6 +153,17 @@ local function switch_state_pub()
   end
 end
 
+local function iot_discovery_pub()
+  local payload = "{\"type\":\"switch\",\"clientId\":\"" .. MQTT_CLIENTID .. "\",\"mainTopic\":\"" .. MQTT_MAINTOPIC .. "\",\"status\":\""
+  if gpio.read(GPIO_SWITCH) == gpio.HIGH then
+    payload = payload .. "on"
+  else
+    payload = payload .. "off"
+  end
+  payload = payload .. "\"}"
+  m:publish('/iot/discovery/reply', payload, 0, 1)
+end
+
 -- Start / Switch GPIO INIT
 gpio.mode(GPIO_SWITCH, gpio.OUTPUT)
 gpio.mode(GPIO_BUTTON, gpio.INT)
@@ -157,6 +173,7 @@ gpio.trig(GPIO_BUTTON, 'down', debounce(toggle_power))
 m_dis[MQTT_MAINTOPIC .. '/cmd/power'] = switch_power
 m_dis[MQTT_MAINTOPIC .. '/cmd/status'] = service_pub
 m_dis[MQTT_MAINTOPIC .. '/cmd/state'] = switch_state_pub
+m_dis['/iot/discovery'] = iot_discovery_pub
 
 
 -- Connect to the broker
